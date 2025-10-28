@@ -4,7 +4,12 @@ import jakarta.persistence.*
 import java.time.LocalDate
 
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users",
+    uniqueConstraints = [
+        UniqueConstraint(columnNames = ["username"])
+    ]
+)
 class UserDo(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
@@ -22,5 +27,5 @@ class UserDo(
     var passwordHash: String,
 
     @Column
-    var birth: LocalDate,
+    var birthday: LocalDate,
 )
