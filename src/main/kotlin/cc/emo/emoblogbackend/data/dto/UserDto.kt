@@ -18,6 +18,7 @@ class UserLoginRequestDto(
 
 class AuthResponseDto(
     val token: String,
+    val expiresIn: Long,
 )
 
 data class UserProfileUpdateRequestDto(
