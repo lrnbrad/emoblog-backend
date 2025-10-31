@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(
-    name = "users",
+    name = "USER",
     uniqueConstraints = [
         UniqueConstraint(columnNames = ["username"])
     ]

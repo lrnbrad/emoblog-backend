@@ -1,13 +1,13 @@
 package cc.emo.emoblogbackend.adapter
 
 import cc.emo.emoblogbackend.data.`do`.UserDo
-import cc.emo.emoblogbackend.data.dto.UserProfileDto
+import cc.emo.emoblogbackend.data.dto.UserProfile
 
-fun UserDo.toUserProfileDto(): UserProfileDto {
-    return UserProfileDto(
+fun UserDo.toUserProfileDto(): UserProfile {
+    return UserProfile(
         username = username,
         firstName = firstName,
         lastName = lastName,
-        birth = birthday,
+        birthday = birthday,
     )
 }

@@ -4,9 +4,9 @@ import cc.emo.emoblogbackend.adapter.toUserProfileDto
 import cc.emo.emoblogbackend.data.dao.UserRepository
 import cc.emo.emoblogbackend.data.`do`.UserDo
 import cc.emo.emoblogbackend.data.dto.AuthResponseDto
-import cc.emo.emoblogbackend.data.dto.UserLoginRequestDto
-import cc.emo.emoblogbackend.data.dto.UserProfileDto
-import cc.emo.emoblogbackend.data.dto.UserRegisterRequestDto
+import cc.emo.emoblogbackend.data.dto.UserLoginRequest
+import cc.emo.emoblogbackend.data.dto.UserProfile
+import cc.emo.emoblogbackend.data.dto.UserRegisterRequest
 import cc.emo.emoblogbackend.security.JwtService
 import jakarta.transaction.Transactional
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -22,7 +22,7 @@ class UserService(
     private val jwt: JwtService
 ) {
     @Transactional
-    fun register(req: UserRegisterRequestDto): AuthResponseDto {
+    fun register(req: UserRegisterRequest): AuthResponseDto {
 
         require(!users.existsUserDoByUsername(req.username)) { "Username already exists" }
         val entity = UserDo(
@@ -38,7 +38,7 @@ class UserService(
         return AuthResponseDto(token, Date.from(Instant.now().plusSeconds(60 * 60)).time)
     }
 
-    fun login(req: UserLoginRequestDto): AuthResponseDto {
+    fun login(req: UserLoginRequest): AuthResponseDto {
         val user = users.findByUsername(req.username)
             ?: error("Invalid username or password")
         if (!encoder.matches(req.password, user.passwordHash)) {
@@ -50,13 +50,13 @@ class UserService(
     }
 
     @Transactional
-    fun updateProfile(userId: Long, newProfile: UserProfileDto): UserProfileDto =
+    fun updateProfile(userId: Long, newProfile: UserProfile): UserProfile =
         users.findById(userId)
             .orElseThrow { RuntimeException("User not found") }
             .run {
                 this.firstName = newProfile.firstName
                 this.lastName = newProfile.lastName
-                this.birthday = newProfile.birth
+                this.birthday = newProfile.birthday
                 users.save(this).toUserProfileDto()
             }
 
