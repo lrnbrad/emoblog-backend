@@ -3,7 +3,7 @@ package cc.emo.emoblogbackend.service
 import cc.emo.emoblogbackend.adapter.toUserProfileDto
 import cc.emo.emoblogbackend.data.dao.UserRepository
 import cc.emo.emoblogbackend.data.`do`.UserDo
-import cc.emo.emoblogbackend.data.dto.AuthResponseDto
+import cc.emo.emoblogbackend.data.dto.AuthResponse
 import cc.emo.emoblogbackend.data.dto.UserLoginRequest
 import cc.emo.emoblogbackend.data.dto.UserProfile
 import cc.emo.emoblogbackend.data.dto.UserRegisterRequest
@@ -22,7 +22,7 @@ class UserService(
     private val jwt: JwtService
 ) {
     @Transactional
-    fun register(req: UserRegisterRequest): AuthResponseDto {
+    fun register(req: UserRegisterRequest): AuthResponse {
 
         require(!users.existsUserDoByUsername(req.username)) { "Username already exists" }
         val entity = UserDo(
@@ -35,10 +35,10 @@ class UserService(
         users.save(entity)
         // 建議：這裡直接回 token，或回 201 + 讓前端呼叫 /auth/login
         val token = jwt.generate(entity.username, mapOf("ROLE" to "USER_ROLE"))
-        return AuthResponseDto(token, Date.from(Instant.now().plusSeconds(60 * 60)).time)
+        return AuthResponse(token, Date.from(Instant.now().plusSeconds(60 * 60)).time)
     }
 
-    fun login(req: UserLoginRequest): AuthResponseDto {
+    fun login(req: UserLoginRequest): AuthResponse {
         val user = users.findByUsername(req.username)
             ?: error("Invalid username or password")
         if (!encoder.matches(req.password, user.passwordHash)) {
@@ -46,7 +46,7 @@ class UserService(
         }
 
         val token = jwt.generate(user.username, mapOf("ROLE" to "USER_ROLE"))
-        return AuthResponseDto(token, Date.from(Instant.now().plusSeconds(60 * 60)).time)
+        return AuthResponse(token, Date.from(Instant.now().plusSeconds(60 * 60)).time)
     }
 
     @Transactional

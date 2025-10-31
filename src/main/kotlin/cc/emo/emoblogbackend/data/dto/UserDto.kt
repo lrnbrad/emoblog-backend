@@ -16,7 +16,7 @@ class UserLoginRequest(
     val password: String,
 )
 
-class AuthResponseDto(
+class AuthResponse(
     val token: String,
     val expiresIn: Long,
 )
