@@ -3,8 +3,10 @@ package cc.emo.emoblogbackend.security
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.ProviderManager
+import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -15,26 +17,42 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 class SecurityConfig(
     private val jwtFilter: JwtAuthFilter,
     private val uds: UserDetailsService,
     private val encoder: PasswordEncoder
 ) {
     @Bean
-    fun authenticationManager(): AuthenticationManager {
-        val provider = DaoAuthenticationProvider(uds)
-            .apply { setPasswordEncoder(encoder) }
-        return ProviderManager(provider)
-    }
+    fun authenticationProvider(): AuthenticationProvider =
+        DaoAuthenticationProvider(uds).apply {
+            setPasswordEncoder(encoder)
+        }
 
     @Bean
-    fun filterChain(http: HttpSecurity, authManager: AuthenticationManager): SecurityFilterChain =
+    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager =
+        config.authenticationManager
+
+    @Bean
+    fun filterChain(
+        http: HttpSecurity,
+        authManager: AuthenticationManager,
+        authProvider: AuthenticationProvider
+    ): SecurityFilterChain =
         http.csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
-                it.requestMatchers("/auth/**", "/actuator/health").permitAll()
+                it.requestMatchers(
+                    "/auth/**",
+                    "/actuator/health",
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/v3/api-docs",
+                    "/v3/api-docs/**",
+                ).permitAll()
                 it.anyRequest().authenticated()
             }
+            .authenticationProvider(authProvider)
             .authenticationManager(authManager)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
             .build()
