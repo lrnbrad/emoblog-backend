@@ -5,10 +5,8 @@ import java.time.LocalDate
 
 @Entity
 @Table(
-    name = "USER",
-    uniqueConstraints = [
-        UniqueConstraint(columnNames = ["username"])
-    ]
+    name = "USERS",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["username"])]
 )
 class UserDo(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
