@@ -12,7 +12,7 @@ import java.util.*
 @Service
 class JwtService(
     @param:Value("\${security.jwt.secret}") private val secret: String,
-    @param:Value("\${security.jwt.expMinutes:60}") private val expMinutes: Long
+    @param:Value("\${security.jwt.expMinutes}") private val expMinutes: Long
 ) {
     private val key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
 
@@ -20,8 +20,8 @@ class JwtService(
         Jwts.builder()
             .subject(username)
             .claims(claims)
-            .issuedAt(Date.from(Instant.now()))
-            .expiration(Date.from(Instant.now().plusSeconds(expMinutes * 60)))
+            .issuedAt(Date.from(now()))
+            .expiration(Date.from(now().plusSeconds(expMinutes * 60)))
             .signWith(key)
             .compact()
 
@@ -31,4 +31,12 @@ class JwtService(
             .build()
             .parseSignedClaims(token)
             .payload
+
+    fun isExpired(claims: Claims): Boolean =
+        claims.expiration?.before(Date.from(now())) ?: true
+
+    fun hasSubject(claims: Claims, expectedUsername: String): Boolean =
+        claims.subject == expectedUsername
+
+    private fun now(): Instant = Instant.now()
 }
