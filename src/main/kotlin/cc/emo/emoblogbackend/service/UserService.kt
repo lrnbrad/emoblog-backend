@@ -9,6 +9,9 @@ import cc.emo.emoblogbackend.data.dto.UserProfile
 import cc.emo.emoblogbackend.data.dto.UserRegisterRequest
 import cc.emo.emoblogbackend.security.JwtService
 import jakarta.transaction.Transactional
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -19,7 +22,8 @@ import java.util.*
 class UserService(
     private val users: UserRepository,
     private val encoder: PasswordEncoder,
-    private val jwt: JwtService
+    private val jwt: JwtService,
+    private val authenticationManager: AuthenticationManager
 ) {
     @Transactional
     fun register(req: UserRegisterRequest): AuthResponse {
@@ -27,7 +31,7 @@ class UserService(
         require(!users.existsUserDoByUsername(req.username)) { "Username already exists" }
         val entity = UserDo(
             username = req.username,
-            passwordHash = encoder.encode(req.password),
+            passwordHash = encoder.encode(req.password)!!,
             firstName = req.firstName,
             lastName = req.lastName,
             birthday = req.birthday
@@ -39,13 +43,15 @@ class UserService(
     }
 
     fun login(req: UserLoginRequest): AuthResponse {
-        val user = users.findByUsername(req.username)
-            ?: error("Invalid username or password")
-        if (!encoder.matches(req.password, user.passwordHash)) {
+        val authenticatedUsername = try {
+            authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken(req.username, req.password)
+            ).name
+        } catch (ex: AuthenticationException) {
             error("Invalid username or password")
         }
 
-        val token = jwt.generate(user.username, mapOf("ROLE" to "USER_ROLE"))
+        val token = jwt.generate(authenticatedUsername, mapOf("ROLE" to "USER_ROLE"))
         return AuthResponse(token, Date.from(Instant.now().plusSeconds(60 * 60)).time)
     }
 
