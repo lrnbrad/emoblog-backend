@@ -3,6 +3,7 @@ package cc.emo.emoblogbackend.security
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -16,6 +17,8 @@ class JwtAuthFilter(
     private val jwt: JwtService,
     private val uds: UserDetailsService
 ) : OncePerRequestFilter() {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     override fun doFilterInternal(
         req: HttpServletRequest, res: HttpServletResponse,
         chain: FilterChain
@@ -25,16 +28,24 @@ class JwtAuthFilter(
             SecurityContextHolder.getContext().authentication == null
         ) {
             val token = header.removePrefix("Bearer ").trim()
-            runCatching { jwt.parseClaims(token) }
-                .onSuccess { claims ->
-                    val userDetails = uds.loadUserByUsername(claims.subject)
-                    val auth = UsernamePasswordAuthenticationToken(
-                        userDetails, null,
-                        userDetails.authorities
-                    )
-                    auth.details = WebAuthenticationDetailsSource().buildDetails(req)
-                    SecurityContextHolder.getContext().authentication = auth
-                }
+            val claims = runCatching { jwt.parseClaims(token) }
+                .onFailure { log.debug("Failed to parse JWT: {}", it.message) }
+                .getOrNull()
+
+            if (claims != null && !jwt.isExpired(claims)) {
+                runCatching { uds.loadUserByUsername(claims.subject) }
+                    .onSuccess { userDetails ->
+                        if (jwt.hasSubject(claims, userDetails.username)) {
+                            val auth = UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.authorities
+                            ).apply {
+                                details = WebAuthenticationDetailsSource().buildDetails(req)
+                            }
+                            SecurityContextHolder.getContext().authentication = auth
+                        }
+                    }
+                    .onFailure { log.debug("User lookup failed for JWT subject {}: {}", claims.subject, it.message) }
+            }
         }
         chain.doFilter(req, res)
     }
