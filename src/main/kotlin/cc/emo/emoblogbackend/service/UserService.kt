@@ -9,11 +9,13 @@ import cc.emo.emoblogbackend.data.dto.UserProfile
 import cc.emo.emoblogbackend.data.dto.UserRegisterRequest
 import cc.emo.emoblogbackend.security.JwtService
 import jakarta.transaction.Transactional
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -28,7 +30,9 @@ class UserService(
     @Transactional
     fun register(req: UserRegisterRequest): AuthResponse {
 
-        require(!users.existsUserDoByUsername(req.username)) { "Username already exists" }
+        if (users.existsUserDoByUsername(req.username)) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Username already exists")
+        }
         val entity = UserDo(
             username = req.username,
             passwordHash = encoder.encode(req.password)!!,
@@ -48,7 +52,7 @@ class UserService(
                 UsernamePasswordAuthenticationToken(req.username, req.password)
             ).name
         } catch (ex: AuthenticationException) {
-            error("Invalid username or password")
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password", ex)
         }
 
         val token = jwt.generate(authenticatedUsername, mapOf("ROLE" to "USER_ROLE"))
@@ -58,7 +62,7 @@ class UserService(
     @Transactional
     fun updateProfile(userId: Long, newProfile: UserProfile): UserProfile =
         users.findById(userId)
-            .orElseThrow { RuntimeException("User not found") }
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "User not found") }
             .run {
                 this.firstName = newProfile.firstName
                 this.lastName = newProfile.lastName

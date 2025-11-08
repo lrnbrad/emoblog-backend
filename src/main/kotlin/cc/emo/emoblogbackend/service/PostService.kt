@@ -15,9 +15,11 @@ import cc.emo.emoblogbackend.security.AppUserDetails
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 
 @Service
@@ -33,7 +35,9 @@ class PostService(
      */
     @Transactional
     fun createPost(request: PostCreateRequest): PostResponse {
-        require(request.content.isNotBlank()) { "Post content cannot be blank" }
+        if (request.content.isBlank()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Post content cannot be blank")
+        }
 
         val currentUser = requireAuthenticatedUser()
         val entity = PostDo(
@@ -71,13 +75,17 @@ class PostService(
     fun getPost(postId: Long): PostResponse {
         requireAuthenticatedUser()
         val post = posts
-            .findById(postId).orElseThrow { NoSuchElementException("Post not found") }
+            .findById(postId).orElseThrow {
+                ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found")
+            }
         return post.toPostResponse()
     }
 
     @Transactional
     fun updatePost(postId: Long, request: PostUpdateRequest): PostResponse {
-        require(request.content.isNotBlank()) { "Post content cannot be blank" }
+        if (request.content.isBlank()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Post content cannot be blank")
+        }
 
         val currentUser = requireAuthenticatedUser()
         val post = posts.findByIdAndAuthorId(postId, currentUser.id())
@@ -102,7 +110,7 @@ class PostService(
     fun likePost(postId: Long): PostResponse {
         val currentUser = requireAuthenticatedUser()
         val post = posts.findByIdForUpdate(postId)
-            .orElseThrow { NoSuchElementException("Post not found") }
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found") }
 
         if (postLikes.existsByPostIdAndUserId(postId, currentUser.id())) {
             return post.toPostResponse()
@@ -124,7 +132,7 @@ class PostService(
     fun unlikePost(postId: Long): PostResponse {
         val currentUser = requireAuthenticatedUser()
         val post = posts.findByIdForUpdate(postId)
-            .orElseThrow { NoSuchElementException("Post not found") }
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found") }
 
         val removed = postLikes.deleteByPostIdAndUserId(postId, currentUser.id())
         if (removed > 0 && post.likeCount > 0) {
@@ -145,10 +153,14 @@ class PostService(
 
     @Transactional
     fun addComment(postId: Long, request: PostCommentCreateRequest): PostCommentResponse {
-        require(request.content.isNotBlank()) { "Comment content cannot be blank" }
+        if (request.content.isBlank()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment content cannot be blank")
+        }
 
         val currentUser = requireAuthenticatedUser()
-        val post = posts.findById(postId).orElseThrow { NoSuchElementException("Post not found") }
+        val post = posts.findById(postId).orElseThrow {
+            ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found")
+        }
 
         val comment = PostCommentDo(
             post = post,
@@ -164,7 +176,9 @@ class PostService(
 
     @Transactional
     fun updateComment(commentId: Long, request: PostCommentUpdateRequest): PostCommentResponse {
-        require(request.content.isNotBlank()) { "Comment content cannot be blank" }
+        if (request.content.isBlank()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment content cannot be blank")
+        }
 
         val currentUser = requireAuthenticatedUser()
         val comment = comments.findByIdAndAuthorId(commentId, currentUser.id())
@@ -189,7 +203,7 @@ class PostService(
     fun likeComment(commentId: Long): PostCommentResponse {
         val currentUser = requireAuthenticatedUser()
         val comment = comments.findByIdForUpdate(commentId)
-            .orElseThrow { NoSuchElementException("Comment not found") }
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found") }
 
         if (commentLikes.existsByCommentIdAndUserId(commentId, currentUser.id())) {
             return comment.toPostCommentResponse(comment.post.id)
@@ -211,7 +225,7 @@ class PostService(
     fun unlikeComment(commentId: Long): PostCommentResponse {
         val currentUser = requireAuthenticatedUser()
         val comment = comments.findByIdForUpdate(commentId)
-            .orElseThrow { NoSuchElementException("Comment not found") }
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found") }
 
         val removed = commentLikes.deleteByCommentIdAndUserId(commentId, currentUser.id())
         if (removed > 0 && comment.likeCount > 0) {
@@ -224,7 +238,7 @@ class PostService(
 
     private fun ensurePostExists(postId: Long) {
         if (!posts.existsById(postId)) {
-            throw NoSuchElementException("Post not found")
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found")
         }
     }
 
