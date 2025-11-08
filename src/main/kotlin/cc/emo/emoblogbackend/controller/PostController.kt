@@ -30,6 +30,10 @@ class PostController(
                 mediaType = "application/json",
                 schema = Schema(implementation = PostResponse::class),
             )]
+        ),
+        ApiResponse(
+            responseCode = "400",
+            description = "Post content cannot be blank"
         )
     )
     @OpenApiRequestBody(
@@ -44,6 +48,20 @@ class PostController(
 
     @GetMapping("/{postId}")
     @Operation(summary = "Get single post")
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "Post found",
+            content = [Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = PostResponse::class),
+            )]
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "Post not found"
+        )
+    )
     fun getPost(@PathVariable postId: Long): PostResponse =
         postService.getPost(postId)
 
@@ -76,6 +94,20 @@ class PostController(
 
     @PutMapping("/{postId}")
     @Operation(summary = "Update a post")
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "Post updated",
+            content = [Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = PostResponse::class),
+            )]
+        ),
+        ApiResponse(
+            responseCode = "400",
+            description = "Post content cannot be blank"
+        )
+    )
     @OpenApiRequestBody(
         required = true,
         description = "Updated content",
@@ -97,16 +129,57 @@ class PostController(
 
     @PostMapping("/{postId}/like")
     @Operation(summary = "Like a post")
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "Post liked",
+            content = [Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = PostResponse::class),
+            )]
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "Post not found"
+        )
+    )
     fun likePost(@PathVariable postId: Long): PostResponse =
         postService.likePost(postId)
 
     @PostMapping("/{postId}/unlike")
     @Operation(summary = "Unlike a post")
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "Post unliked",
+            content = [Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = PostResponse::class),
+            )]
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "Post not found"
+        )
+    )
     fun unlikePost(@PathVariable postId: Long): PostResponse =
         postService.unlikePost(postId)
 
     @GetMapping("/{postId}/comments")
     @Operation(summary = "List comments for a post")
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "Comments returned",
+            content = [Content(
+                mediaType = "application/json",
+            )]
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "Post not found"
+        )
+    )
     fun getComments(
         @PathVariable postId: Long,
         @RequestParam(defaultValue = "0") page: Int,
@@ -118,6 +191,24 @@ class PostController(
     @PostMapping("/{postId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Add a comment to a post")
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "201",
+            description = "Comment created",
+            content = [Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = PostCommentResponse::class),
+            )]
+        ),
+        ApiResponse(
+            responseCode = "400",
+            description = "Comment content cannot be blank"
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "Post not found"
+        )
+    )
     @OpenApiRequestBody(
         required = true,
         description = "Comment content",
@@ -132,6 +223,20 @@ class PostController(
 
     @PutMapping("/comments/{commentId}")
     @Operation(summary = "Update a comment")
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "Comment updated",
+            content = [Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = PostCommentResponse::class),
+            )]
+        ),
+        ApiResponse(
+            responseCode = "400",
+            description = "Comment content cannot be blank"
+        )
+    )
     @OpenApiRequestBody(
         required = true,
         description = "Updated comment content",
@@ -153,11 +258,39 @@ class PostController(
 
     @PostMapping("/comments/{commentId}/like")
     @Operation(summary = "Like a comment")
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "Comment liked",
+            content = [Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = PostCommentResponse::class),
+            )]
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "Comment not found"
+        )
+    )
     fun likeComment(@PathVariable commentId: Long): PostCommentResponse =
         postService.likeComment(commentId)
 
     @PostMapping("/comments/{commentId}/unlike")
     @Operation(summary = "Unlike a comment")
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "Comment unliked",
+            content = [Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = PostCommentResponse::class),
+            )]
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "Comment not found"
+        )
+    )
     fun unlikeComment(@PathVariable commentId: Long): PostCommentResponse =
         postService.unlikeComment(commentId)
 }
