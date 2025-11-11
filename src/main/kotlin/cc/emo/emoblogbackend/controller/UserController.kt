@@ -59,6 +59,6 @@ class UserController(
     @GetMapping("/search/by-name")
     @Operation(summary = "Look up a user by its name")
     fun findByName(
-        @RequestParam username: String
-    ): List<UserProfile> = userService.findUserByName(username)
+        @RequestParam name: String
+    ): List<UserProfile> = userService.findUserByName(name)
 }
