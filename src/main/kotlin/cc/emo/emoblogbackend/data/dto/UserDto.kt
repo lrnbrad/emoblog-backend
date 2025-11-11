@@ -47,7 +47,8 @@ data class UserProfileUpdateRequest(
 )
 
 data class UserProfile(
-//    val id: Long,
+    @field:Schema(example = "1")
+    val id: Long,
     @field:Schema(example = "user")
     val username: String,
     @field:Schema(example = "Jane")

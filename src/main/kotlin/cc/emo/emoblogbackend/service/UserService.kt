@@ -93,4 +93,7 @@ class UserService(
         return match
     }
 
+    fun findUserByName(name: String): List<UserProfile> =
+        users.findByName(name)
+            .map { it.toUserProfileDto() }
 }

@@ -55,4 +55,10 @@ class UserController(
     ): List<UserProfile> =
         userService.findUserByBirthdayParts(year, month, day)
             .map { it.toUserProfileDto() }
+
+    @GetMapping("/search/by-name")
+    @Operation(summary = "Look up a user by its name")
+    fun findByName(
+        @RequestParam username: String
+    ): List<UserProfile> = userService.findUserByName(username)
 }
