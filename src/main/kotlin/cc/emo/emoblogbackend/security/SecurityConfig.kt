@@ -1,5 +1,6 @@
 package cc.emo.emoblogbackend.security
 
+import jakarta.servlet.DispatcherType
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -41,20 +42,20 @@ class SecurityConfig(
     ): SecurityFilterChain =
         http.csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-            .authorizeHttpRequests {
-                it.requestMatchers(
-                    "/auth/**",
-                    "/actuator/health",
-                    "/swagger-ui.html",
-                    "/swagger-ui/**",
-                    "/v3/api-docs",
-                    "/v3/api-docs/**",
-                ).permitAll()
-                it.anyRequest().authenticated()
+            .authorizeHttpRequests { auth ->
+                auth.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                    .requestMatchers(
+                        "/auth/**",
+                        "/actuator/health",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**",
+                    ).permitAll()
+                    .anyRequest().authenticated()
             }
             .authenticationProvider(authProvider)
             .authenticationManager(authManager)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
             .build()
-
 }
