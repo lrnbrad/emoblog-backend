@@ -1,6 +1,6 @@
 package cc.emo.emoblogbackend.controller
 
-import cc.emo.emoblogbackend.adapter.toUserProfileDto
+import cc.emo.emoblogbackend.data.adapter.toUserProfileDto
 import cc.emo.emoblogbackend.data.dto.UserProfile
 import cc.emo.emoblogbackend.service.UserService
 import io.swagger.v3.oas.annotations.Operation

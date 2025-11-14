@@ -1,6 +1,6 @@
 package cc.emo.emoblogbackend.service
 
-import cc.emo.emoblogbackend.adapter.toUserProfileDto
+import cc.emo.emoblogbackend.data.adapter.toUserProfileDto
 import cc.emo.emoblogbackend.data.dao.UserRepository
 import cc.emo.emoblogbackend.data.`do`.UserDo
 import cc.emo.emoblogbackend.data.dto.AuthResponse
@@ -41,7 +41,6 @@ class UserService(
             birthday = req.birthday
         )
         users.save(entity)
-        // 建議：這裡直接回 token，或回 201 + 讓前端呼叫 /auth/login
         val token = jwt.generate(entity.username, mapOf("ROLE" to "USER_ROLE"))
         return AuthResponse(token, Date.from(Instant.now().plusSeconds(60 * 60)).time)
     }

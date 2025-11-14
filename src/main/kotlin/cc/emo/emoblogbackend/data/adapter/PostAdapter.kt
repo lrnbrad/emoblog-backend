@@ -1,4 +1,4 @@
-package cc.emo.emoblogbackend.adapter
+package cc.emo.emoblogbackend.data.adapter
 
 import cc.emo.emoblogbackend.data.`do`.PostCommentDo
 import cc.emo.emoblogbackend.data.`do`.PostDo

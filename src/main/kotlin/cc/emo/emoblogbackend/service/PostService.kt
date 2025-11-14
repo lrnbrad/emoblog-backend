@@ -1,7 +1,7 @@
 package cc.emo.emoblogbackend.service
 
-import cc.emo.emoblogbackend.adapter.toPostCommentResponse
-import cc.emo.emoblogbackend.adapter.toPostResponse
+import cc.emo.emoblogbackend.data.adapter.toPostCommentResponse
+import cc.emo.emoblogbackend.data.adapter.toPostResponse
 import cc.emo.emoblogbackend.data.dao.PostCommentLikeRepository
 import cc.emo.emoblogbackend.data.dao.PostCommentRepository
 import cc.emo.emoblogbackend.data.dao.PostLikeRepository

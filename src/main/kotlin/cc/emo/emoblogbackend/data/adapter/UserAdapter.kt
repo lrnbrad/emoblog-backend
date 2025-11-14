@@ -1,4 +1,4 @@
-package cc.emo.emoblogbackend.adapter
+package cc.emo.emoblogbackend.data.adapter
 
 import cc.emo.emoblogbackend.data.`do`.UserDo
 import cc.emo.emoblogbackend.data.dto.UserProfile
