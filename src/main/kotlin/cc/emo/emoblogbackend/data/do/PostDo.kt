@@ -20,6 +20,8 @@ class PostDo(
     @JoinColumn(name = "author_id", referencedColumnName = "id", nullable = false, updatable = false)
     val author: UserDo,
 
+    val authorUsername: String = author.username,
+
     @Column(nullable = false, columnDefinition = "TEXT")
     var content: String,
 

@@ -20,6 +20,9 @@ data class PostResponse(
     @field:Schema(example = "42")
     val authorId: Long,
 
+    @field:Schema(example = "ericQQ")
+    val authorUsername: String,
+
     @field:Schema(example = "Hello, world! This is my first post.")
     val content: String,
 

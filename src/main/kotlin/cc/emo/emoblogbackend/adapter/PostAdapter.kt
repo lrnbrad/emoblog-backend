@@ -8,6 +8,7 @@ import cc.emo.emoblogbackend.data.dto.PostResponse
 fun PostDo.toPostResponse(commentCount: Long = comments.size.toLong()) = PostResponse(
     id = id,
     authorId = author.id,
+    authorUsername = author.username,
     content = content,
     likeCount = likeCount,
     createdAt = createdAt ?: error("Post entity has no createdAt; ensure it is persisted"),
