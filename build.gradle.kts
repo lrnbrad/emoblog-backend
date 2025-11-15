@@ -34,7 +34,6 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // OpenAPI dependencies
-    runtimeOnly("org.springdoc:springdoc-openapi-kotlin:1.8.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0-M1")
 
     // JWT (JJWT) dependencies
