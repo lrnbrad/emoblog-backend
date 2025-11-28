@@ -20,8 +20,8 @@ data class PostCommentResponse(
     @field:Schema(example = "123")
     val postId: Long,
 
-    @field:Schema(example = "42")
-    val authorId: Long,
+    @field:Schema(example = "user")
+    val authorUsername: String,
 
     @field:Schema(example = "Nice post! Thanks for sharing.")
     val content: String,
