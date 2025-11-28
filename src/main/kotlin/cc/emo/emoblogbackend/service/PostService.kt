@@ -193,8 +193,17 @@ class PostService(
     @Transactional
     fun deleteComment(commentId: Long) {
         val currentUser = requireAuthenticatedUser()
-        val comment = comments.findByIdAndAuthorId(commentId, currentUser.id())
-            .orElseThrow { AccessDeniedException("You are not allowed to delete this comment") }
+        val comment = comments.findById(commentId)
+            .orElseThrow {
+                ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found")
+            }
+
+        val userId = currentUser.id()
+        val isCommentAuthor = comment.author.id == userId
+        val isPostAuthor = comment.post.author.id == userId
+        if (!isCommentAuthor && !isPostAuthor) {
+            throw AccessDeniedException("You are not allowed to delete this comment")
+        }
 
         comments.delete(comment)
     }
