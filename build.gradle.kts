@@ -42,8 +42,8 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
 
     // Database dependencies
-    runtimeOnly("com.h2database:h2")
-    runtimeOnly("org.postgresql:postgresql")
+    implementation("org.xerial:sqlite-jdbc:3.51.0.0")
+    implementation("org.hibernate.orm:hibernate-community-dialects:7.1.10.Final")
 }
 
 kotlin {
