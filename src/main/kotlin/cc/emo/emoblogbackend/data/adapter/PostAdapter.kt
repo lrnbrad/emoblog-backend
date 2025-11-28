@@ -19,7 +19,7 @@ fun PostDo.toPostResponse(commentCount: Long = comments.size.toLong()) = PostRes
 fun PostCommentDo.toPostCommentResponse(fallbackPostId: Long? = null) = PostCommentResponse(
     id = id,
     postId = post?.id ?: fallbackPostId ?: error("Detached comment missing post reference"),
-    authorId = author.id,
+    authorUsername = author.username,
     content = content,
     likeCount = likeCount,
     createdAt = createdAt ?: error("Comment entity has no createdAt; ensure it is persisted"),
