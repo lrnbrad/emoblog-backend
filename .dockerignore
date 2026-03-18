@@ -1,0 +1,10 @@
+.git
+.gitignore
+.gradle
+.idea
+.kotlin
+build
+db
+.env
+README.md
+HELP.md
